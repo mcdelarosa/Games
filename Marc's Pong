@@ -1,0 +1,160 @@
+!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Marc's Pong</title>
+    <style>
+        * { padding: 0; margin: 0; }
+        canvas { background: #000000; display: block; margin: 0 auto; }
+    </style>
+    <h1>Welcome to my Pong game</h1>
+</head>
+<body>
+
+<canvas id="myCanvas" width="1000" height="640"></canvas>
+
+<script>
+    var canvas = document.getElementById("myCanvas"); //
+    var ctx = canvas.getContext("2d"); // esto hace que el juego(Imagen) este en dos dimensiones
+
+    var counterP1;
+    var counterP2;
+
+    // Ball
+
+    var ballDirectionX = 3;//it's in which direction the ball moves
+    var ballDirectionY = -5;
+    var x = canvas.width/2;// it's where the ball appears
+    var y = canvas.height/2;
+    var ballRadius = 15;
+
+    // Paddle
+    var lengthPaddle = 150;
+    var widthPaddle = 15;
+    var paddle_pos = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
+    var spaceBPaddle = 0;//space between the paddle and the wall
+
+    var keyUp = false;
+    var keyDown = false;
+
+    // ----- paint
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#268ddd";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(spaceBPaddle,paddle_pos,widthPaddle,lengthPaddle);
+        ctx.fillStyle = "#0038ff";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function draw() {
+        clearCanvas();
+
+        drawBall();
+        drawPaddle();
+
+        moveBall();
+        checkBall();
+        movePaddle();
+
+    }
+
+    //it deletes all what was printed (drawed)
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+
+    // --------- LOGIC / Business
+
+
+    function moveBall(){
+
+        y += ballDirectionY;
+        x += ballDirectionX;
+    }
+
+    function checkBall(){
+
+
+        // (+) check if paddle is there
+
+
+
+        // if arrives to the right limit
+        //
+        if (x + ballDirectionX > canvas.width)
+        {
+            ballDirectionX = -ballDirectionX;
+        }
+        // if arrives to the top limit
+        //
+        else if(y + ballDirectionY > canvas.height)
+        {
+            ballDirectionY = -ballDirectionY;
+        }
+        // if arrives to the left limit
+        //
+        else if(x + ballDirectionX < 0)
+        {
+            alert("Player two WINS!!!");
+            counterP2 = counterP2++;
+            clearInterval(interval); // remove the iteration
+        }
+        // if arrives to the bottom limit
+        //
+        else if (y + ballDirectionY < 0) {
+            ballDirectionY = -ballDirectionY;
+        }
+    }
+
+    function movePaddle() {
+
+        if (keyDown)
+        {
+            paddle_pos -= 7;
+        }
+        else if (keyUp)
+        {
+            paddle_pos += 7;
+        }
+    }
+
+
+    // ---------------- Keyboard Listeners
+
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    function keyDownHandler(e) {
+        if(e.key === "ArrowUp"){
+            keyDown = true;
+        }
+        else if(e.key === 'ArrowDown') {
+            keyUp = true;
+        }
+    }
+
+    function keyUpHandler(e) {
+        if(e.key === 'ArrowUp') {
+            keyDown = false;
+        }
+        else if(e.key === 'ArrowDown') {
+            keyUp = false;
+        }
+    }
+
+    // -----------------------
+
+    var interval = setInterval(draw,12); // initialize the game
+
+
+</script>
+
+</body>
+</html>
