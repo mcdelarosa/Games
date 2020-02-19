@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Marc's Pong</title>
+    <style>
+        * { padding: 0; margin: 0; }
+        canvas { background: #000000; display: block; margin: 0 auto; }
+    </style>
+    <h1>Welcome to my Pong game</h1>
+</head>
+<body>
+<canvas id="myCanvas" width="1000" height="640"></canvas>
+<div id="counter1"></div>
+<div id="counter2"></div>
+
+<script>
+    var canvas = document.getElementById("myCanvas"); //
+    var ctx = canvas.getContext("2d");
+
+    var counterP1 = 0;
+    var counterP2 = 0;
+
+    // Ball
+
+    var interval;
+    var ballDirectionX;
+    var ballDirectionY;
+    var x;
+    var y;
+
+    var ballRadius = 15;
+
+    // Paddle
+    var lengthPaddle = 150;
+    var widthPaddle = 15;
+    var paddle_pos = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
+    var spaceBPaddle = 0;//space between the paddle and the wall
+
+    var keyDown = false;
+    var keyUp = false;
+
+    // ----- paint
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#268ddd";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(spaceBPaddle,paddle_pos,widthPaddle,lengthPaddle);
+        ctx.fillStyle = "#0038ff";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function draw() {
+        clearCanvas();
+
+        drawBall();
+        drawPaddle();
+
+
+        moveBall();
+        movePaddle();
+        checkDraw();
+    }
+
+    //it deletes all what was printed (drawed)
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+
+    // --------- LOGIC / Business
+
+
+    function moveBall(){
+
+        y = y+ballDirectionY;
+        x = x+ballDirectionX;
+    }
+    function movePaddle() {
+
+        if (keyDown){
+            paddle_pos += 7;
+        }
+        else if (keyUp) {
+            paddle_pos -= 7;
+        }
+    }
+
+    function checkDraw(){
+        // (+) check if paddle is there
+
+
+        // if arrives to the right limit
+        //
+        if (x + ballDirectionX > canvas.width)
+        {
+            ballDirectionX = -ballDirectionX;
+        }
+        // if arrives to the top limit
+        //
+        else if(y + ballDirectionY > canvas.height)
+        {
+            ballDirectionY = -ballDirectionY;
+        }
+        // if arrives to the bottom limit
+        //
+        else if (y + ballDirectionY <= 0) {
+            ballDirectionY = -ballDirectionY;
+        }
+        // if arrives to the left limit
+        //
+        else if(x + ballDirectionX <= 0) {
+            counterP2 = ++counterP2;
+            clearInterval(interval); // remove the iteration
+        }
+        else if(
+            spaceBPaddle < x
+            && x < (spaceBPaddle + widthPaddle  + 2)
+            && paddle_pos < y
+            && y < (paddle_pos + lengthPaddle))
+        {
+            ballDirectionX = -ballDirectionX;
+        }
+
+    }
+    function counters(){
+        document.getElementById('counter1').innerText = "Player1:" + counterP1;
+        document.getElementById('counter2').innerText = "Player2:" + counterP2;
+        if(counterP1 > 5 || counterP2 > 5){
+            ctx.font = '48px serif';
+            ctx.strokeText('Game Over', 10, 50);
+        }
+    }
+
+
+    // ---------------- Keyboard Listeners
+
+    document.addEventListener("keydown", keyUpHandler, false);
+    document.addEventListener("keyup", keyDownHandler, false);
+
+    function keyUpHandler(e) {
+        if(e.key === 'ArrowDown'){
+            keyDown = true;
+        }
+        else if(e.key === "ArrowUp") {
+            keyUp = true;
+        }
+    }
+
+    function keyDownHandler(e) {
+        if(e.key === 'ArrowDown') {
+            keyDown = false;
+        }
+        else if(e.key === 'ArrowUp') {
+            keyUp = false;
+        }
+        else if (e.key === 'Enter') {
+            startPath();
+            initialize();
+            counters();
+
+        }
+    }
+    function startPath() {
+        ctx.font = "100px serif";
+        ctx.textBaseline = "hanging";
+        ctx.strokeText("Marc's Pong", 0, 60);
+        ctx.font = "15px serif";
+        ctx.strokeText("press ENTER to start",150,150);
+    }
+
+    // -----------------------
+
+
+    //  Returns a random number between min (inclusive) and max (exclusive)
+
+    function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function initialize()
+    {
+        ballDirectionX = -(getRandomArbitrary(2,6));//it's in which direction the ball moves
+        ballDirectionY = -(getRandomArbitrary(2,6));
+        x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
+        y = canvas.height/2 + getRandomArbitrary(-50,50);
+
+        interval = setInterval(draw,12); // initialize the game
+    }
+
+
+
+
+</script>
+
+</body>
+</html>
