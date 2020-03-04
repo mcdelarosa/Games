@@ -5,9 +5,9 @@
     <title>Marc's Pong</title>
     <style>
         * { padding: 0; margin: 0; }
-        canvas { background: #000000; display: block; margin: 0 auto; }
+        canvas { background: #ffffff; display: block; margin: 0 auto; }
     </style>
-    <h1>Welcome to my Pong game</h1>
+    <h1>Press ENTER to start and restart</h1>
 </head>
 <body>
 <canvas id="myCanvas" width="1000" height="640"></canvas>
@@ -18,8 +18,11 @@
     var canvas = document.getElementById("myCanvas"); //
     var ctx = canvas.getContext("2d");
 
+    //Counter
+
     var counterP1 = 0;
     var counterP2 = 0;
+    var winner;
 
     // Ball
 
@@ -28,49 +31,73 @@
     var ballDirectionY;
     var x;
     var y;
+    var ball = false;
 
     var ballRadius = 15;
 
     // Paddle
     var lengthPaddle = 150;
     var widthPaddle = 15;
-    var paddle_pos = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
-    var spaceBPaddle = 0;//space between the paddle and the wall
+    var paddle_pos1 = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
+    var paddle_pos2 = canvas.height/2-lengthPaddle/2;
+    const spaceBPaddle1 = 0;//space between the paddle of player one and the wall
+    const spaceBPaddle2 = canvas.width - widthPaddle;//space between the paddle of player two and the wall
 
     var keyDown = false;
     var keyUp = false;
+    var keyW = false;
+    var keyS = false;
 
     // ----- paint
 
-    function drawBall() {
+    function drawBall()
+    {
+        ball = true;
         ctx.beginPath();
         ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
         ctx.fillStyle = "#268ddd";
         ctx.fill();
         ctx.closePath();
     }
-    function drawPaddle() {
+    function drawPaddle1()
+    {
         ctx.beginPath();
-        ctx.rect(spaceBPaddle,paddle_pos,widthPaddle,lengthPaddle);
+        ctx.rect(spaceBPaddle1,paddle_pos1,widthPaddle,lengthPaddle);
+        ctx.fillStyle = "#0038ff";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle2()
+    {
+        ctx.beginPath();
+        ctx.rect(spaceBPaddle2,paddle_pos2,widthPaddle,lengthPaddle);
         ctx.fillStyle = "#0038ff";
         ctx.fill();
         ctx.closePath();
     }
 
-    function draw() {
-        clearCanvas();
+    function draw()
+    {
+        if(counterP1 <= 5 || counterP2 <= 5) {
+            clearCanvas();
 
-        drawBall();
-        drawPaddle();
+            drawBall();
+            drawPaddle1();
+            drawPaddle2();
 
 
-        moveBall();
-        movePaddle();
-        checkDraw();
+            moveBall();
+            movePaddle1();
+            checkDraw();
+            movePaddle2();
+        }
     }
 
     //it deletes all what was printed (drawed)
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    function clearCanvas()
+    {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
 
     // --------- LOGIC / Business
@@ -81,17 +108,32 @@
         y = y+ballDirectionY;
         x = x+ballDirectionX;
     }
-    function movePaddle() {
+    function movePaddle1() {
 
-        if (keyDown){
-            paddle_pos += 7;
+        if (keyDown)
+        {
+
+            paddle_pos1 += 7;
+
         }
-        else if (keyUp) {
-            paddle_pos -= 7;
+        else if(keyUp) {
+
+            paddle_pos1 -= 7;
         }
     }
+    function movePaddle2()
+    {
+       if (keyW)
+       {
+            paddle_pos2 += 7;
+       }
+       else if(keyS){
+           paddle_pos2 -= 7;
+       }
+    }
 
-    function checkDraw(){
+    function checkDraw()
+    {
         // (+) check if paddle is there
 
 
@@ -119,59 +161,100 @@
             clearInterval(interval); // remove the iteration
         }
         else if(
-            spaceBPaddle < x
-            && x < (spaceBPaddle + widthPaddle  + 2)
-            && paddle_pos < y
-            && y < (paddle_pos + lengthPaddle))
+            spaceBPaddle1 < x
+            && x < (spaceBPaddle1 + widthPaddle  + 2)
+            && paddle_pos1 < y
+            && y < (paddle_pos1 + lengthPaddle))
         {
             ballDirectionX = -ballDirectionX;
         }
 
     }
-    function counters(){
+    function counters()
+    {
+        if(counterP1 >= 5|| counterP2 >= 5){
+            clearCanvas();
+            counterP1 = 0;
+            counterP2 = 0;
+            ctx.beginPath();
+            ctx.font = '124px serif';
+            ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
+            ctx.closePath();
+            ctx.font = "34px serif";
+            ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
+            keyDownHandler();
+        }
         document.getElementById('counter1').innerText = "Player1:" + counterP1;
         document.getElementById('counter2').innerText = "Player2:" + counterP2;
-        if(counterP1 > 5 || counterP2 > 5){
-            ctx.font = '48px serif';
-            ctx.strokeText('Game Over', 10, 50);
-        }
+
     }
-
-
     // ---------------- Keyboard Listeners
 
     document.addEventListener("keydown", keyUpHandler, false);
     document.addEventListener("keyup", keyDownHandler, false);
+    document.addEventListener("KeyS", keyUpHandler,false);
+    document.addEventListener("KeyW", keyDownHandler,false);
 
-    function keyUpHandler(e) {
-        if(e.key === 'ArrowDown'){
+    function keyUpHandler(e)
+    {
+        if(e.key === 'ArrowDown')
+        {
             keyDown = true;
         }
-        else if(e.key === "ArrowUp") {
+        else if(e.key === "ArrowUp")
+        {
             keyUp = true;
         }
+        else if(e.key === 'KeyW')
+        {
+            keyW = true;
+        }
+        else if(e.key === 'KeyS')
+        {
+            keyS = true;
+        }
     }
 
-    function keyDownHandler(e) {
-        if(e.key === 'ArrowDown') {
+    function keyDownHandler(e)
+    {
+        if(e.key === 'ArrowDown')
+        {
             keyDown = false;
         }
-        else if(e.key === 'ArrowUp') {
+        else if(e.key === 'ArrowUp')
+        {
             keyUp = false;
         }
-        else if (e.key === 'Enter') {
+        else if(e.key === 'KeyW')
+        {
+            keyW = false;
+        }
+        else if(e.key === 'KeyS')
+        {
+            keyS = false;
+        }
+        else if(ball === false)
+        {
             startPath();
-            initialize();
-            counters();
+        }
 
+        else if (e.key === 'Enter')
+        {
+                initialize();
         }
     }
-    function startPath() {
-        ctx.font = "100px serif";
+
+    function startPath()
+    {
+        clearCanvas();
+        ball = true;
+        ctx.beginPath();
+        ctx.font = "124px serif";
         ctx.textBaseline = "hanging";
-        ctx.strokeText("Marc's Pong", 0, 60);
-        ctx.font = "15px serif";
-        ctx.strokeText("press ENTER to start",150,150);
+        ctx.strokeText("Marc's Pong", canvas.width/6, canvas.height /10);
+        ctx.font = "34px serif";
+        ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
+        ctx.closePath();
     }
 
     // -----------------------
@@ -179,7 +262,8 @@
 
     //  Returns a random number between min (inclusive) and max (exclusive)
 
-    function getRandomArbitrary(min, max) {
+    function getRandomArbitrary(min, max)
+    {
         return Math.random() * (max - min) + min;
     }
 
@@ -189,7 +273,7 @@
         ballDirectionY = -(getRandomArbitrary(2,6));
         x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
         y = canvas.height/2 + getRandomArbitrary(-50,50);
-
+        counters();
         interval = setInterval(draw,12); // initialize the game
     }
 
