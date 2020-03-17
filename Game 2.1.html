@@ -22,7 +22,7 @@
 
     var counterP1 = 0;
     var counterP2 = 0;
-    var winner;
+    var winner = false;
 
     // Ball
 
@@ -78,7 +78,7 @@
 
     function draw()
     {
-        if(counterP1 <= 5 || counterP2 <= 5) {
+        if(counterP2 <= 5 || counterP1 <= 5) {
             clearCanvas();
 
             drawBall();
@@ -172,17 +172,21 @@
     }
     function counters()
     {
-        if(counterP1 >= 5|| counterP2 >= 5){
+        if (counterP1 >= 5 || counterP2 >= 5)
+        {
+            winner = true;
+        }
+        if(winner === true){
             clearCanvas();
             counterP1 = 0;
             counterP2 = 0;
             ctx.beginPath();
             ctx.font = '124px serif';
             ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
-            ctx.closePath();
             ctx.font = "34px serif";
             ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
-            keyDownHandler();
+            ctx.closePath();
+            setInterval(startPath,30);
         }
         document.getElementById('counter1').innerText = "Player1:" + counterP1;
         document.getElementById('counter2').innerText = "Player2:" + counterP2;
@@ -192,8 +196,8 @@
 
     document.addEventListener("keydown", keyUpHandler, false);
     document.addEventListener("keyup", keyDownHandler, false);
-    document.addEventListener("KeyS", keyUpHandler,false);
-    document.addEventListener("KeyW", keyDownHandler,false);
+    document.addEventListener("keyS", KeySHandler,false);
+    document.addEventListener("keyW", KeyWHandler,false);
 
     function keyUpHandler(e)
     {
@@ -204,14 +208,6 @@
         else if(e.key === "ArrowUp")
         {
             keyUp = true;
-        }
-        else if(e.key === 'KeyW')
-        {
-            keyW = true;
-        }
-        else if(e.key === 'KeyS')
-        {
-            keyS = true;
         }
     }
 
@@ -225,28 +221,42 @@
         {
             keyUp = false;
         }
-        else if(e.key === 'KeyW')
-        {
-            keyW = false;
-        }
-        else if(e.key === 'KeyS')
-        {
-            keyS = false;
-        }
-        else if(ball === false)
+       else if(ball === false)
         {
             startPath();
         }
-
         else if (e.key === 'Enter')
         {
-                initialize();
+            initialize();
+        }
+    }
+    function KeySHandler(e)
+    {
+        if(e.key === 'KeyW')
+        {
+            keyS = false;
+        }
+        else if(e.key === "KeyS")
+        {
+            keyW = false;
+        }
+    }
+    function KeyWHandler(e)
+    {
+        if(e.key === "KeyS")
+        {
+            keyS = true;
+        }
+        else if(e.key === "KeyW")
+        {
+            keyW = true;
         }
     }
 
     function startPath()
     {
         clearCanvas();
+        winner = false;
         ball = true;
         ctx.beginPath();
         ctx.font = "124px serif";
@@ -274,7 +284,7 @@
         x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
         y = canvas.height/2 + getRandomArbitrary(-50,50);
         counters();
-        interval = setInterval(draw,12); // initialize the game
+        interval = setInterval(draw,15); // initialize the game
     }
 
 
