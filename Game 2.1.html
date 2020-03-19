@@ -23,6 +23,7 @@
     var counterP1 = 0;
     var counterP2 = 0;
     var winner = false;
+    var playset = false;
 
     // Ball
 
@@ -40,8 +41,8 @@
     var widthPaddle = 15;
     var paddle_pos1 = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
     var paddle_pos2 = canvas.height/2-lengthPaddle/2;
-    const spaceBPaddle1 = 0;//space between the paddle of player one and the wall
-    const spaceBPaddle2 = canvas.width - widthPaddle;//space between the paddle of player two and the wall
+    const SpaceBPaddle1 = 0;//space between the paddle of player one and the wall
+    const SpaceBPaddle2 = canvas.width - widthPaddle;//space between the paddle of player two and the wall
 
     var keyDown = false;
     var keyUp = false;
@@ -62,7 +63,7 @@
     function drawPaddle1()
     {
         ctx.beginPath();
-        ctx.rect(spaceBPaddle1,paddle_pos1,widthPaddle,lengthPaddle);
+        ctx.rect(SpaceBPaddle1,paddle_pos1,widthPaddle,lengthPaddle);
         ctx.fillStyle = "#0038ff";
         ctx.fill();
         ctx.closePath();
@@ -70,8 +71,8 @@
     function drawPaddle2()
     {
         ctx.beginPath();
-        ctx.rect(spaceBPaddle2,paddle_pos2,widthPaddle,lengthPaddle);
-        ctx.fillStyle = "#0038ff";
+        ctx.rect(SpaceBPaddle2,paddle_pos2,widthPaddle,lengthPaddle);
+        ctx.fillStyle = "#ff2020";
         ctx.fill();
         ctx.closePath();
     }
@@ -91,6 +92,13 @@
             checkDraw();
             movePaddle2();
         }
+        else if(winner === true){
+                ctx.font = '124px serif';
+                ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
+                ctx.font = "34px serif";
+                ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
+                ctx.closePath();
+        }
     }
 
     //it deletes all what was printed (drawed)
@@ -108,28 +116,41 @@
         y = y+ballDirectionY;
         x = x+ballDirectionX;
     }
+
     function movePaddle1() {
 
         if (keyDown)
         {
-
-            paddle_pos1 += 7;
-
+            if(paddle_pos1 <= canvas.height - lengthPaddle)
+            {
+                paddle_pos1 += 7;
+            }
         }
-        else if(keyUp) {
-
-            paddle_pos1 -= 7;
+        else if(keyUp)
+        {
+            if(paddle_pos1 >= 0)
+            {
+                paddle_pos1 -= 7;
+            }
         }
     }
+
     function movePaddle2()
     {
-       if (keyW)
-       {
-            paddle_pos2 += 7;
-       }
-       else if(keyS){
-           paddle_pos2 -= 7;
-       }
+        if (keyW)
+        {
+            if(paddle_pos2 <= canvas.height - lengthPaddle)
+            {
+                paddle_pos2 += 7;
+            }
+        }
+        else if(keyS)
+        {
+            if(paddle_pos2 >= 0)
+            {
+                paddle_pos2 -= 7;
+            }
+        }
     }
 
     function checkDraw()
@@ -157,12 +178,13 @@
         // if arrives to the left limit
         //
         else if(x + ballDirectionX <= 0) {
+            playset = false;
             counterP2 = ++counterP2;
             clearInterval(interval); // remove the iteration
         }
         else if(
-            spaceBPaddle1 < x
-            && x < (spaceBPaddle1 + widthPaddle  + 2)
+            SpaceBPaddle1 < x
+            && x < (SpaceBPaddle1 + widthPaddle  + 2)
             && paddle_pos1 < y
             && y < (paddle_pos1 + lengthPaddle))
         {
@@ -180,83 +202,58 @@
             clearCanvas();
             counterP1 = 0;
             counterP2 = 0;
-            ctx.beginPath();
-            ctx.font = '124px serif';
-            ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
-            ctx.font = "34px serif";
-            ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
-            ctx.closePath();
-            setInterval(startPath,30);
+            winner = false;
+            //ctx.beginPath();
         }
         document.getElementById('counter1').innerText = "Player1:" + counterP1;
         document.getElementById('counter2').innerText = "Player2:" + counterP2;
-
     }
     // ---------------- Keyboard Listeners
 
-    document.addEventListener("keydown", keyUpHandler, false);
-    document.addEventListener("keyup", keyDownHandler, false);
-    document.addEventListener("keyS", KeySHandler,false);
-    document.addEventListener("keyW", KeyWHandler,false);
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
 
-    function keyUpHandler(e)
-    {
+
+    function movePaddel(e, enable){
+
         if(e.key === 'ArrowDown')
         {
-            keyDown = true;
+           keyDown = enable; keyUp = false;
         }
         else if(e.key === "ArrowUp")
         {
-            keyUp = true;
+           keyUp = enable; keyDown = false;
         }
+        else if(e.key === 's')
+        {
+            keyS = enable; keyW = false;
+        }
+        else if(e.key === 'w')
+        {
+            keyW = enable; keyS = false;
+        }
+    }
+
+    function keyUpHandler(e)
+    {
+       movePaddel(e, false);
     }
 
     function keyDownHandler(e)
     {
-        if(e.key === 'ArrowDown')
+        movePaddel(e, true);
+
+        if ((!playset) && e.key === 'Enter')
         {
-            keyDown = false;
+                if (ball === false) startPath();
+                initialize();
         }
-        else if(e.key === 'ArrowUp')
-        {
-            keyUp = false;
-        }
-       else if(ball === false)
-        {
-            startPath();
-        }
-        else if (e.key === 'Enter')
-        {
-            initialize();
-        }
-    }
-    function KeySHandler(e)
-    {
-        if(e.key === 'KeyW')
-        {
-            keyS = false;
-        }
-        else if(e.key === "KeyS")
-        {
-            keyW = false;
-        }
-    }
-    function KeyWHandler(e)
-    {
-        if(e.key === "KeyS")
-        {
-            keyS = true;
-        }
-        else if(e.key === "KeyW")
-        {
-            keyW = true;
-        }
+
     }
 
     function startPath()
     {
         clearCanvas();
-        winner = false;
         ball = true;
         ctx.beginPath();
         ctx.font = "124px serif";
@@ -279,6 +276,7 @@
 
     function initialize()
     {
+        playset = true;
         ballDirectionX = -(getRandomArbitrary(2,6));//it's in which direction the ball moves
         ballDirectionY = -(getRandomArbitrary(2,6));
         x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
@@ -287,7 +285,7 @@
         interval = setInterval(draw,15); // initialize the game
     }
 
-
+    startPath();
 
 
 </script>
