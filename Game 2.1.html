@@ -7,10 +7,9 @@
         * { padding: 0; margin: 0; }
         canvas { background: #ffffff; display: block; margin: 0 auto; }
     </style>
-    <h1>Press ENTER to start and restart</h1>
 </head>
 <body>
-<canvas id="myCanvas" width="1000" height="640"></canvas>
+<canvas id="myCanvas" width="1000" height="640" style="background: #000000"></canvas>
 <div id="counter1"></div>
 <div id="counter2"></div>
 
@@ -18,7 +17,7 @@
     var canvas = document.getElementById("myCanvas"); //
     var ctx = canvas.getContext("2d");
 
-    //Counter
+    //Counters
 
     var counterP1 = 0;
     var counterP2 = 0;
@@ -36,7 +35,7 @@
 
     var ballRadius = 15;
 
-    // Paddle
+    // Paddles
     var lengthPaddle = 150;
     var widthPaddle = 15;
     var paddle_pos1 = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
@@ -94,6 +93,7 @@
         }
         else if(winner === true){
                 ctx.font = '124px serif';
+                ctx.fillStyle = "white";
                 ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
                 ctx.font = "34px serif";
                 ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
@@ -117,38 +117,39 @@
         x = x+ballDirectionX;
     }
 
-    function movePaddle1() {
-
-        if (keyDown)
-        {
-            if(paddle_pos1 <= canvas.height - lengthPaddle)
-            {
-                paddle_pos1 += 7;
-            }
-        }
-        else if(keyUp)
-        {
-            if(paddle_pos1 >= 0)
-            {
-                paddle_pos1 -= 7;
-            }
-        }
-    }
 
     function movePaddle2()
     {
-        if (keyW)
+        if (keyUp)
+        {
+            if(paddle_pos2 >= 0)
+            {
+                paddle_pos2 -= 7;
+            }
+        }
+        else if(keyDown)
         {
             if(paddle_pos2 <= canvas.height - lengthPaddle)
             {
                 paddle_pos2 += 7;
             }
         }
+    }
+
+    function movePaddle1()
+    {
+        if (keyW)
+        {
+            if(paddle_pos1 >= 0)
+            {
+                paddle_pos1 -= 7;
+            }
+        }
         else if(keyS)
         {
-            if(paddle_pos2 >= 0)
+            if(paddle_pos1 <= canvas.height - lengthPaddle)
             {
-                paddle_pos2 -= 7;
+                paddle_pos1 += 7;
             }
         }
     }
@@ -162,7 +163,9 @@
         //
         if (x + ballDirectionX > canvas.width)
         {
-            ballDirectionX = -ballDirectionX;
+            playset = false;
+            counterP1 = ++counterP1;
+            clearInterval(interval); // remove the iteration
         }
         // if arrives to the top limit
         //
@@ -173,7 +176,7 @@
         // if arrives to the bottom limit
         //
         else if (y + ballDirectionY <= 0) {
-            ballDirectionY = -ballDirectionY;
+        ballDirectionY = -ballDirectionY;
         }
         // if arrives to the left limit
         //
@@ -189,6 +192,13 @@
             && y < (paddle_pos1 + lengthPaddle))
         {
             ballDirectionX = -ballDirectionX;
+        }//that's when the ball touchs the paddle
+        else if(SpaceBPaddle2 < x &&
+        x < (SpaceBPaddle2 + widthPaddle + 2)&&
+        paddle_pos2 < y &&
+        y < (paddle_pos2+ lengthPaddle))
+        {
+         ballDirectionX = -ballDirectionX;
         }
 
     }
