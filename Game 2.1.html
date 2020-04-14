@@ -17,12 +17,15 @@
     var canvas = document.getElementById("myCanvas"); //
     var ctx = canvas.getContext("2d");
 
+
     //Counters
 
     var counterP1 = 0;
     var counterP2 = 0;
-    var winner = false;
-    var playset = false;
+
+    var runningGame = false;
+    var Goal = prompt("Put the number of points you want someone to Win");
+
 
     // Ball
 
@@ -31,11 +34,11 @@
     var ballDirectionY;
     var x;
     var y;
-    var ball = false;
 
     var ballRadius = 15;
 
     // Paddles
+
     var lengthPaddle = 150;
     var widthPaddle = 15;
     var paddle_pos1 = canvas.height/2-lengthPaddle/2; //that's where the paddle appears
@@ -48,11 +51,22 @@
     var keyW = false;
     var keyS = false;
 
+    // ----- names for the players
+    var p1;
+    var p2;
+
+    function Names()
+    {
+       p1 = prompt("Name for Player 1");
+       p2 = prompt("Name for Player 2");
+    }
+
+    Names();
+
     // ----- paint
 
     function drawBall()
     {
-        ball = true;
         ctx.beginPath();
         ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
         ctx.fillStyle = "#268ddd";
@@ -78,7 +92,6 @@
 
     function draw()
     {
-        if(counterP2 <= 5 || counterP1 <= 5) {
             clearCanvas();
 
             drawBall();
@@ -90,15 +103,6 @@
             movePaddle1();
             checkDraw();
             movePaddle2();
-        }
-        else if(winner === true){
-                ctx.font = '124px serif';
-                ctx.fillStyle = "white";
-                ctx.strokeText('Game Over',canvas.width/6 , canvas.height/10);
-                ctx.font = "34px serif";
-                ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
-                ctx.closePath();
-        }
     }
 
     //it deletes all what was printed (drawed)
@@ -163,7 +167,7 @@
         //
         if (x + ballDirectionX > canvas.width)
         {
-            playset = false;
+            runningGame = false;
             counterP1 = ++counterP1;
             clearInterval(interval); // remove the iteration
         }
@@ -175,13 +179,15 @@
         }
         // if arrives to the bottom limit
         //
-        else if (y + ballDirectionY <= 0) {
+        else if (y + ballDirectionY <= 0)
+        {
         ballDirectionY = -ballDirectionY;
         }
         // if arrives to the left limit
         //
-        else if(x + ballDirectionX <= 0) {
-            playset = false;
+        else if(x + ballDirectionX <= 0)
+        {
+            runningGame = false;
             counterP2 = ++counterP2;
             clearInterval(interval); // remove the iteration
         }
@@ -194,29 +200,55 @@
             ballDirectionX = -ballDirectionX;
         }//that's when the ball touchs the paddle
         else if(SpaceBPaddle2 < x &&
-        x < (SpaceBPaddle2 + widthPaddle + 2)&&
-        paddle_pos2 < y &&
-        y < (paddle_pos2+ lengthPaddle))
+                x < (SpaceBPaddle2 + widthPaddle + 2)&&
+                paddle_pos2 < y &&
+                y < (paddle_pos2+ lengthPaddle))
         {
          ballDirectionX = -ballDirectionX;
         }
 
     }
-    function counters()
+
+    function hasWinner()
     {
-        if (counterP1 >= 5 || counterP2 >= 5)
+        if (counterP1 >= Goal || counterP2 >= Goal)
         {
-            winner = true;
+            return true;
         }
-        if(winner === true){
-            clearCanvas();
-            counterP1 = 0;
-            counterP2 = 0;
-            winner = false;
-            //ctx.beginPath();
+        else
+        {
+            return false
         }
-        document.getElementById('counter1').innerText = "Player1:" + counterP1;
-        document.getElementById('counter2').innerText = "Player2:" + counterP2;
+    }
+
+    function printCounter()
+    {
+        document.getElementById('counter1').innerText = p1 + ":" + counterP1;
+        document.getElementById('counter2').innerText = p2 +":" + counterP2;
+    }
+
+    function TheWinner()
+    {
+        let winnersName;
+
+        if (counterP1 >= Goal)
+        {
+            winnersName = p1;
+        }
+        else if(counterP2 >= Goal)
+        {
+            winnersName = p2;
+        }
+
+        clearCanvas();
+        ctx.font = '100px serif';
+        ctx.fillStyle = "#ffe600";
+        ctx.fillText('The Winner is:', canvas.width / 6, canvas.height / 10);
+        ctx.font = '124px serif';
+        ctx.fillText(winnersName, canvas.width / 3, canvas.height / 4);
+        ctx.font = "34px serif";
+        ctx.fillText("press ENTER to start", canvas.width / 3, canvas.height / 2);
+        ctx.closePath();
     }
     // ---------------- Keyboard Listeners
 
@@ -224,7 +256,8 @@
     document.addEventListener("keyup", keyUpHandler, false);
 
 
-    function movePaddel(e, enable){
+    function movePaddel(e, enable)
+    {
 
         if(e.key === 'ArrowDown')
         {
@@ -249,54 +282,67 @@
        movePaddel(e, false);
     }
 
-    function keyDownHandler(e)
-    {
+    function keyDownHandler(e) {
         movePaddel(e, true);
 
-        if ((!playset) && e.key === 'Enter')
-        {
-                if (ball === false) startPath();
-                initialize();
+        if ((!runningGame) && e.key === 'Enter') {
+                startPath();
+                initializePlayset();
+                initializeGame();
         }
-
     }
 
     function startPath()
     {
-        clearCanvas();
-        ball = true;
-        ctx.beginPath();
-        ctx.font = "124px serif";
-        ctx.textBaseline = "hanging";
-        ctx.strokeText("Marc's Pong", canvas.width/6, canvas.height /10);
-        ctx.font = "34px serif";
-        ctx.strokeText("press ENTER to start",canvas.width/3,canvas.height/4);
-        ctx.closePath();
+            clearCanvas();
+            ctx.beginPath();
+            ctx.font = "124px serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.textBaseline = "hanging";
+            ctx.fillText("Marc's Pong", canvas.width/6, canvas.height /10);
+            ctx.font = "34px serif";
+            ctx.fillText("press ENTER to start",canvas.width/3,canvas.height/4);
+            ctx.closePath();
     }
 
-    // -----------------------
-
-
-    //  Returns a random number between min (inclusive) and max (exclusive)
-
+        //  Returns a random number between min (inclusive) and max (exclusive)
     function getRandomArbitrary(min, max)
     {
-        return Math.random() * (max - min) + min;
+            return Math.random() * (max - min) + min;
     }
 
-    function initialize()
+    function initializePlayset()
     {
-        playset = true;
-        ballDirectionX = -(getRandomArbitrary(2,6));//it's in which direction the ball moves
-        ballDirectionY = -(getRandomArbitrary(2,6));
-        x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
-        y = canvas.height/2 + getRandomArbitrary(-50,50);
-        counters();
-        interval = setInterval(draw,15); // initialize the game
+            if (interval) clearInterval(interval);
+
+            runningGame = true;
+            let randomDirection = Math.(random())*10;
+
+            ballDirectionX = (getRandomArbitrary(2,6));//it's in which direction the ball moves
+            ballDirectionY = (getRandomArbitrary(2,6));
+            x = canvas.width/2 + getRandomArbitrary(-50,50);// it's where the ball appears
+            y = canvas.height/2 + getRandomArbitrary(-50,50);
+
+            if(hasWinner())
+            {
+                runningGame = false;
+                TheWinner();
+            }
+            else
+            {
+                printCounter();
+                interval = setInterval(draw,15); // initialize the game
+            }
+
+    }
+
+    function initializeGame(){
+
+        counterP1 = 0;
+        counterP2 = 0;
     }
 
     startPath();
-
 
 </script>
 
