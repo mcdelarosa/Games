@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sweet Adventure JS</title>
+    <style>
+        * { padding: 0; margin: 0; }
+        canvas { background: #c3fff8; display: block; margin: 0 auto; }
+    </style>
+    <script src="Character.js"></script>
+</head>
+<body>
+
+    <canvas id="myCanvas" width="1000" height="640"></canvas>
+
+
+ <script>
+
+     var canvas = document.getElementById("myCanvas");
+     var ctx = canvas.getContext("2d");
+
+
+     var donut = new Character(20,200, 0, './images/Donut_1.png', './images/Donut_2.png');
+     var fork = new Character(1000,279, -20, './images/Fork.png', './images/Fork.png' );
+
+     var listCharacters = [ donut, fork ];
+
+
+     function clear(_ctx, listImages){
+
+         return new Promise(function(resolve, reject){
+
+                 listImages.forEach(image => {
+
+                     _ctx.clearRect(image.x, image.y, (image.x + image.getImage().width), (image.y + image.getImage().height));
+                 });
+
+                 resolve(true);
+         });
+
+     }
+
+     function draw(_ctx, listImages)
+     {
+
+         return new Promise(function(resolve, reject){
+
+             listImages.forEach(image => {
+
+                 _ctx.drawImage(image.getImage(), image.x, image.y);
+             });
+
+             resolve(true);
+         });
+
+
+     }
+
+     function move(listImages, e, enable)
+     {
+
+         return new Promise(function(resolve, reject){
+
+             listImages.forEach(image => { image.addX(); });
+
+             resolve(true);
+         });
+         if(e.key === 'ArrowDown')
+         {
+             keyDown = enable; keyUp = false;
+         }
+         else if(e.key === "ArrowUp")
+         {
+             keyUp = enable; keyDown = false;
+         }
+         else if(e.key === 's')
+         {
+             keyS = enable; keyW = false;
+         }
+         else if(e.key === 'w')
+         {
+             keyW = enable; keyS = false;
+
+     }
+
+
+     function run() {
+
+         let _clear = clear(ctx, listCharacters);
+         let _draw = draw(ctx, listCharacters);
+         let _move = move(listCharacters);
+
+         Promise.all([_clear, _draw, _move]).then(() => {
+
+             setTimeout(function () {
+                 run();
+             }, 250);
+
+         });
+
+     }
+     var listeners;
+     document.addEventListener("keydown", keyDownHandler, false);
+     document.addEventListener("keyup", keyUpHandler, false);
+
+
+     function GameOver(listCharacters) {
+         if(donut.width >= fork.width){
+             console.log ("Game Over");
+         }
+     }
+
+     run();
+     GameOver();
+
+
+
+
+
+ </script>
+</body>
+</html>
