@@ -16,36 +16,37 @@ class Game:
         
 
     def reset(self):
-        self.table = [0, 0, 0],[0, 0, 0], [0, 0, 0]
+        self.table = [0, 0, 0],[0, 0, 0], [0, 0, 0]     # y and x are inverted!
 
     def ask(self, value):
         coordinates = input('Enter your coordinates: ').upper()
         self.reader(coordinates, value)
         self.drawer(self.p1.symbol, self.p2.symbol)
+        self.check_win()
 
-    def reader(self, coordinates, value):
+    def reader(self, coordinates, value):       #when the input is enter nothing happens
         x, y = None, None
         for c in coordinates:
             c = str(c)
             try:
                 if c in self.x_map:
                     x = self.x_map[c]
-                    print(x)
                     self.check_in_table(x, y, value)
 
                 elif c in self.y_map:
                     y = self.y_map[c]
-                    print(y)
                     self.check_in_table(x, y, value)
             except:
                 print('out of range...')
     
     def check_in_table(self, x, y, value):
         if x is not None and y is not None:
-            if self.table[x][y] == 0:
-                self.table[x][y] = value
+            if self.table[y][x] == 0:
+                self.table[y][x] = value
             else:
                 print('this coordinates have been already picked...')
+                self.ask(value)
+
             
     def start(self):
         self.winner = None
@@ -56,7 +57,7 @@ class Game:
         self.symbol2 = input('P2 put your symbol (only one): ')
     
         self.p1 = Player(self.name1, self.symbol1, 1)
-        self.p2 = Player(self.name2, self.symbol2, 2)
+        self.p2 = Player(self.name2, self.symbol2, 4) # the value is 4 because then there is no problem by checking who the winner is
         
         self.reset()
 
@@ -70,33 +71,27 @@ class Game:
     
     #functions for checking for the winner
     def check_win(self):
-        if self.calculate_row() == 6 or self.calculate_column() == 6 or self.calculate_diagonal() == 6:
+        if self.calculate_row() == 3 or self.calculate_column() == 3 or self.calculate_to_l == 3 or self.calculate_to_r() == 3:
             self.winner = 'P1'
-        elif self.calculate_row() == 9 or self.calculate_column() == 9 or self.calculate_diagonal() == 9:
+        elif self.calculate_row() == 12 or self.calculate_column() == 12 or self.calculate_to_l() == 12 or self.calculate_to_r() == 12:
             self.winner = 'P2'
         
-    def calculate_row(self):
+    def calculate_column(self):
         for x in range(3):
             result = 0
             for y in range(3):
                 result = result + self.table[y][x]
-            if result == 9 or result == 6:
-                return result
+            return result
                 
-    def calculate_column(self):
+    def calculate_row(self):
         for y in range(3):
             result = 0
             for x in range(3):
                 result = result + self.table[y][x]
-            if result == 9 or result == 6:
-                return result
-            
-    def calculate_diagonal(self):
-        if self.calculate_to_r() == 6 or self.calculate_to_l() == 6:
-            return 6
-        elif self.calculate_to_r() == 9 or self.calculate_to_l() == 9:
-            return 9
-            
+            return result
+
+    # calculate in diagonal:
+
     def calculate_to_r(self):
         result = 0
         for i in range(3):
@@ -109,15 +104,15 @@ class Game:
             result = result + self.table[i][2-i]
         return result
     
-    def drawer(self, symbol1, symbol2):
+    def drawer(self, symbol1, symbol2):     #when incorrect insert, two prints...
         print(' A|B|C')
         for y in range(len(self.table)):
             print('')
             print(f"{(y + 1)}|", end='')
             for x in range(len(self.table[y])):
-                if self.table[x][y] == 1:
+                if self.table[y][x] == 1:
                     print(symbol1, end='|')
-                elif self.table[x][y] == 2:
+                elif self.table[y][x] == 4:
                     print(symbol2,end='|')
                 else:
                     print(' ', end='|')
