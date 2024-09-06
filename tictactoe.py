@@ -43,7 +43,7 @@ class Game:
     def check_in_table(self, x, y, value):
         if x is not None and y is not None:
             if self.table[x][y] == 0:
-                self.table = value
+                self.table[x][y] = value
             else:
                 print('this coordinates have been already picked...')
             
@@ -111,7 +111,7 @@ class Game:
     
     def drawer(self, symbol1, symbol2):
         print(' A|B|C')
-        for y in range(self.table):
+        for y in range(len(self.table)):
             print('')
             print(f"{(y + 1)}|", end='')
             for x in range(len(self.table[y])):
