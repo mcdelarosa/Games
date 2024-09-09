@@ -1,4 +1,4 @@
-
+import re
 
 class Player:
     def __init__(self, name, symbol, value):
@@ -18,13 +18,19 @@ class Game:
         
 
     def reset(self):
-        self.table = [0, 0, 1],[0, 1, 0], [0, 0, 0]     # y and x are inverted!
+        self.table = [0, 0, 0],[0, 0, 0], [0, 0, 0]     # y and x are inverted!
         self.drawer(self.symbol1, self.symbol2)
 
     def ask(self, value):
         if self.winner is None:
 
-            coordinates = input('Enter your coordinates [1-Letter+Number]: ').upper()
+            coordinates =  None
+            pattern = "^\w{1}\d+|^\d+\w{1}"     # from re library. This does filter the input.
+            while ((coordinates is None or len(coordinates) == 0) or
+                  (coordinates is not None and not re.match(pattern, coordinates))):
+
+                coordinates = input('Enter your coordinates [1-Letter+Number]: ').upper()
+
             self.reader(coordinates, value)
             self.drawer(self.p1.symbol, self.p2.symbol)
             self.check_win()
