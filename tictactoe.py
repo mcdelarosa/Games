@@ -19,7 +19,7 @@ class Game:
 
     def reset(self):
         self.table = [0, 0, 0],[0, 0, 0], [0, 0, 0]     # y and x are inverted!
-        self.drawer(self.symbol1, self.symbol2)
+        self.drawer()
 
     def ask(self, value):
         if self.winner is None:
@@ -29,47 +29,48 @@ class Game:
             while ((coordinates is None or len(coordinates) == 0) or
                   (coordinates is not None and not re.match(pattern, coordinates))):
 
-                coordinates = input('Enter your coordinates [1-Letter+Number]: ').upper()
+                coordinates = input(f'{value} :: Enter your coordinates [1-Letter+Number]:').upper()
+            coor_x, coor_y = self.validate(coordinates)
+            if coor_x is not None and coor_y is not None:
+                if not self.table[coor_y][coor_x] == 0:
+                    print('this coordinates have been already picked...')
+                    self.ask(value)
+                else:
+                    self.assign(coor_x, coor_y, value)
+                    self.drawer()
+                    self.check_win()
 
-            self.reader(coordinates, value)
-            self.drawer(self.p1.symbol, self.p2.symbol)
-            self.check_win()
 
-
-    def reader(self, coordinates, value):       #when the input is enter nothing happens
+    def validate(self, coordinates):
         x, y = None, None
-        for c in coordinates:
-            c = str(c)
-            try:
+        try:
+            for c in coordinates:
+                c = str(c)
                 if c in self.x_map:
                     x = self.x_map[c]
-                    self.check_in_table(x, y, value)
 
                 elif c in self.y_map:
                     y = self.y_map[c]
-                    self.check_in_table(x, y, value)
-            except:
-                print('out of range...')
-    
-    def check_in_table(self, x, y, value):
-        if x is not None and y is not None:
-            if self.table[y][x] == 0:
-                self.table[y][x] = value
-            else:
-                print('this coordinates have been already picked...')
-                self.ask(value)
+        except:
+            print('out of range...')
+            return [ None, None ]
+
+        return [ x, y ]
+
+    def assign(self,x,y,value):
+        self.table[y][x] = value
 
             
     def start(self):
         self.winner = None
-        self.name1 = input('Name of Player 1: ')
-        self.symbol1 = input('P1 put your symbol (only one): ')
+        name1 = input('Name of Player 1: ')
+        symbol1 = input('P1 put your symbol (only one): ')
         
-        self.name2 = input('Name of Player 2: ')
-        self.symbol2 = input('P2 put your symbol (only one): ')
+        name2 = input('Name of Player 2: ')
+        symbol2 = input('P2 put your symbol (only one): ')
     
-        self.p1 = Player(self.name1, self.symbol1, 1)
-        self.p2 = Player(self.name2, self.symbol2, 4) # the value is 4 because then there is no problem by checking who the winner is
+        self.p1 = Player(name1, symbol1, 1)
+        self.p2 = Player(name2, symbol2, 4) # the value is 4 because then there is no problem by checking who the winner is
         self.reset()
 
         while self.winner is None:
@@ -114,16 +115,15 @@ class Game:
             result = result + self.table[i][2-i]
         return result
     
-    def drawer(self, symbol1, symbol2):     #when incorrect insert, two prints...
+    def drawer(self):     #when incorrect insert, two prints...
         print(' A|B|C')
         for y in range(len(self.table)):
-            print('')
             print(f"{(y + 1)}|", end='')
             for x in range(len(self.table[0])):
                 if self.table[y][x] == 1:
-                    print(symbol1, end='|')
+                    print(self.p1.symbol, end='|')
                 elif self.table[y][x] == 4:
-                    print(symbol2,end='|')
+                    print(self.p2.symbol,end='|')
                 else:
                     print(' ', end='|')
             print('')
