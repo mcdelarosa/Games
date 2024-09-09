@@ -1,3 +1,5 @@
+
+
 class Player:
     def __init__(self, name, symbol, value):
         self.name = name
@@ -16,13 +18,17 @@ class Game:
         
 
     def reset(self):
-        self.table = [0, 0, 0],[0, 0, 0], [0, 0, 0]     # y and x are inverted!
+        self.table = [0, 0, 1],[0, 1, 0], [0, 0, 0]     # y and x are inverted!
+        self.drawer(self.symbol1, self.symbol2)
 
     def ask(self, value):
-        coordinates = input('Enter your coordinates: ').upper()
-        self.reader(coordinates, value)
-        self.drawer(self.p1.symbol, self.p2.symbol)
-        self.check_win()
+        if self.winner is None:
+
+            coordinates = input('Enter your coordinates [1-Letter+Number]: ').upper()
+            self.reader(coordinates, value)
+            self.drawer(self.p1.symbol, self.p2.symbol)
+            self.check_win()
+
 
     def reader(self, coordinates, value):       #when the input is enter nothing happens
         x, y = None, None
@@ -58,49 +64,47 @@ class Game:
     
         self.p1 = Player(self.name1, self.symbol1, 1)
         self.p2 = Player(self.name2, self.symbol2, 4) # the value is 4 because then there is no problem by checking who the winner is
-        
         self.reset()
 
-        while self.winner == None:
-            self.play()
+        while self.winner is None:
+            self.ask(self.p1.value)
+            self.ask(self.p2.value)
         print(f'The winner is {self.winner}!')
 
-    def play(self):
-        self.ask(self.p1.value)
-        self.ask(self.p2.value)
-    
-    #functions for checking for the winner
+    #functions to check for the winner
     def check_win(self):
-        if self.calculate_row() == 3 or self.calculate_column() == 3 or self.calculate_to_l == 3 or self.calculate_to_r() == 3:
+        if self.calculate_row() == 3 or self.calculate_column() == 3 or self.calculate_to_l() == 3 or self.calculate_to_r() == 3:
             self.winner = 'P1'
         elif self.calculate_row() == 12 or self.calculate_column() == 12 or self.calculate_to_l() == 12 or self.calculate_to_r() == 12:
             self.winner = 'P2'
-        
+
     def calculate_column(self):
-        for x in range(3):
+        for x in range(len(self.table[0])):
             result = 0
-            for y in range(3):
+            for y in range(len(self.table)):
                 result = result + self.table[y][x]
-            return result
-                
+            if result == 3 or result == 12:
+                return result
+
     def calculate_row(self):
-        for y in range(3):
+        for y in range(len(self.table)):
             result = 0
-            for x in range(3):
+            for x in range(len(self.table[0])):
                 result = result + self.table[y][x]
-            return result
+            if result == 3 or result == 12:
+                return result
 
     # calculate in diagonal:
 
     def calculate_to_r(self):
         result = 0
-        for i in range(3):
+        for i in range(len(self.table)):
             result = result + self.table[i][i]
         return result
         
     def calculate_to_l(self):
         result = 0
-        for i in range(3):
+        for i in range(len(self.table)):
             result = result + self.table[i][2-i]
         return result
     
@@ -109,7 +113,7 @@ class Game:
         for y in range(len(self.table)):
             print('')
             print(f"{(y + 1)}|", end='')
-            for x in range(len(self.table[y])):
+            for x in range(len(self.table[0])):
                 if self.table[y][x] == 1:
                     print(symbol1, end='|')
                 elif self.table[y][x] == 4:
